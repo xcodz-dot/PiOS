@@ -1,0 +1,8 @@
+README.md
+setup.py
+PiOS.egg-info/PKG-INFO
+PiOS.egg-info/SOURCES.txt
+PiOS.egg-info/dependency_links.txt
+PiOS.egg-info/top_level.txt
+pios/__init__.py
+pios/__main__.py
