@@ -5,7 +5,7 @@ from socket import gethostbyname
 from sys import exit
 from requests import get
 from configparser import ConfigParser
-from packaging.version import Version
+from packaging.version import parse, Version
 
 
 def check_for_updates():
@@ -25,19 +25,8 @@ def check_for_updates():
     github_version = Version(version_info["PiOS"]["github_version"])
     recommended_version = Version(version_info["PiOS"]["recommended_version"])
     current_version = Version(version)
-    if pypi_version > current_version and not pypi_version.pre:
-        print("A New Stable release is available, upgrade via this command: 'pip install PiOS --upgrade'")
-    if github_version > current_version:
-        if github_version.pre:
-            if github_version > current_version:
-                print("A Github Beta release is available, upgrade via this command: "
-                      "'pip install https://github.com/xcodz-dot/PiOS/tarball/main'")
-        elif github_version > pypi_version and github_version > current_version:
-            print("A Stable Github release is available, the release have not been uploaded to PyPI, upgrade "
-                  "via this command: 'pip install https://github.com/xcodz-dot/PiOS/tarball/main'")
-    if recommended_version > current_version:
-        print("This version is no longer supported, please update using one of the commands above (stable release is "
-              "recommended)")
+    if pypi_version > current_version:
+        print("A New Stable release is available upgrade via this command: 'pip install PiOS --upgrade'")
 
 
 def check_for_internet():
@@ -63,5 +52,6 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    if args.check_upgrade:
-        pass
+    if args.check_upgrade:pass
+
+
