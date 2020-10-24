@@ -64,4 +64,4 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if args.check_upgrade:
-        pass
+        check_for_updates()
