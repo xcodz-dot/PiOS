@@ -11,7 +11,7 @@ requirements = ["pydenver",
 
 setuptools.setup(
     name='PiOS',
-    version='0.1',
+    version='0.2',
     packages=setuptools.find_packages() + setuptools.find_namespace_packages(include=["pios.*"]),
     package_data=pysetup.find_package_data("pios", "pios"),
     url='https://github.com/xcodz-dot/PiOS',
