@@ -1,4 +1,4 @@
-pydenver
+denverapi
 setuptools~=50.3.0
 requests
 packaging
