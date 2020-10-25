@@ -6,6 +6,9 @@ from sys import exit
 from requests import get
 from configparser import ConfigParser
 from packaging.version import Version
+from importlib import import_module
+from shutil import copytree
+import os
 
 
 def check_for_updates():
@@ -25,6 +28,7 @@ def check_for_updates():
     github_version = Version(version_info["PiOS"]["github_version"])
     recommended_version = Version(version_info["PiOS"]["recommended_version"])
     current_version = Version(version)
+    print()
     if pypi_version > current_version and not pypi_version.pre:
         print("A New Stable release is available, upgrade via this command: 'pip install PiOS --upgrade'")
     if github_version > current_version:
@@ -57,7 +61,7 @@ if __name__ == '__main__':
     parser.version = f"PiOS ({version})"
 
     parser.add_argument("-f", "--operating-system", help="Specify a Operating System to load and run",
-                        default="pios")
+                        default="pios1")
     parser.add_argument("-c", "--check-upgrade", help="Check for upgrades", action="store_true")
     parser.add_argument("-v", "--version", action="version")
 
@@ -65,3 +69,12 @@ if __name__ == '__main__':
 
     if args.check_upgrade:
         check_for_updates()
+    else:
+        try:
+            os.chdir(f"{__file__}/../os_instance/{args.operating_system}")
+        except OSError:
+            copytree(f"{__file__}/../os_recreation_data/{args.operating_system}",
+                     f"{__file__}/../os_instance/{args.operating_system}")
+            os.chdir(f"{__file__}/../os_instance/{args.operating_system}")
+        operating_system = import_module(f"pios.installed_os.{args.operating_system}")
+        operating_system.main()
