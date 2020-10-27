@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/PiOS.iml" filepath="$PROJECT_DIR$/.idea/PiOS.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../PiOS-SDK/.idea/PiOS-SDK.iml" filepath="$PROJECT_DIR$/../PiOS-SDK/.idea/PiOS-SDK.iml" />
     </modules>
   </component>
 </project>
