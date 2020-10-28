@@ -1,0 +1,16 @@
+{
+    "remote": {
+        "enabled": false,
+        "host-ipv4": "127.0.0.1",
+        "host-port": 3700,
+        "join-password": "vrtetA==\n"
+    },
+    "security": {
+        "installation": {
+            "allow-unofficial-installer": false
+        }
+    },
+    "system": {
+        "user-interface": "auto-ui"
+    }
+}

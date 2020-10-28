@@ -81,11 +81,10 @@ class AutoUi:
 
 
 def clear():
-    pass
-    # if os.name == "nt":
-    #     os.system("cls")
-    # else:
-    #     os.system("clear")
+    if os.name == "nt":
+        os.system("cls")
+    else:
+        os.system("clear")
 
 
 def install_app(file_name):
@@ -169,7 +168,9 @@ def discover_modules(path):
             modules.extend(glob.glob(f"{directory}/*.pyo"))
 
 
-def load_environment_variables(env_dir=f"{root}/system/env"):
+def load_environment_variables(env_dir=None):
+    if env_dir is None:
+        env_dir = f"{root}/system/env"
     env = os.listdir(env_dir)
     environment_variables = {k: read_file_str(f"{env_dir}/{k}") for k in env}
     return environment_variables
@@ -187,9 +188,12 @@ def parse_command(command, environment_variables=None):
             variable_value = match.group(1)  # ${VARIABLE_NAME}
             try:
                 variable_value = environment_variables[match.group(2)]
+            except KeyError:
+                variable_value = match.group(1)
             finally:
                 s[match.start(): match.end()] = variable_value
         new_command.append(''.join(s))
+    return new_command
 
 
 def run_command(command, environment=None, pi_path=None):
@@ -197,13 +201,13 @@ def run_command(command, environment=None, pi_path=None):
         environment = load_environment_variables()
     if pi_path is None:
         pi_path = pi_path = environment["PATH"].split(';')
-    parse_command(command, environment)
+    command = parse_command(command, environment)
     # noinspection PyBroadException
     try:
         if len(command) == 0:
             return 0
         elif command[0] == "exit":
-            return 0
+            return "e"
         elif command[0] == "setenv":
             with open(f"{root}/system/env/{command[1]}") as file:
                 file.write(command[2])
@@ -232,8 +236,7 @@ def run_command(command, environment=None, pi_path=None):
         error_msg = traceback.format_exc()
         print(error_msg)
         return 1
-    finally:
-        return 0
+    return 0
 
 
 def interactive_terminal_session():
@@ -248,7 +251,9 @@ def interactive_terminal_session():
     terminal_running = True
     while terminal_running:
         user_command = input(es(os.getcwd().replace(os.sep, "/") + "{fore_magenta}$ "))
-        run_command(user_command, )
+        if run_command(user_command) == "e":
+            return
+        print()
 
 
 def start_ui(ui_type):
