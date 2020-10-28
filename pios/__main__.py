@@ -61,7 +61,7 @@ if __name__ == '__main__':
     parser.version = f"PiOS ({version})"
 
     parser.add_argument("-f", "--operating-system", help="Specify a Operating System to load and run",
-                        default="pios1")
+                        default="pios")
     parser.add_argument("-c", "--check-upgrade", help="Check for upgrades", action="store_true")
     parser.add_argument("-v", "--version", action="version")
 

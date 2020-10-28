@@ -12,6 +12,8 @@ import subprocess
 import traceback
 import glob
 
+sys.path.append(os.path.abspath(f"{__file__}/.."))
+
 root = ''
 
 es = denverapi.ctext.ColoredText.escape
@@ -127,10 +129,6 @@ def generate_default_directories_and_files():
                 "allow-unofficial-installer": False
             }
         },
-        "developer-options": {
-            "enabled": False,
-            "generate-log": True
-        },
         "system":
             {
                 "user-interface": "auto-ui",
@@ -171,8 +169,89 @@ def discover_modules(path):
             modules.extend(glob.glob(f"{directory}/*.pyo"))
 
 
-def start_ui(ui_type):
+def load_environment_variables(env_dir=f"{root}/system/env"):
+    env = os.listdir(env_dir)
+    environment_variables = {k: read_file_str(f"{env_dir}/{k}") for k in env}
+    return environment_variables
+
+
+def parse_command(command, environment_variables=None):
+    if environment_variables is None:
+        environment_variables = load_environment_variables()
+
+    command = shlex.split(command, True)
+    new_command = []
+    for x in command:
+        s = list(x)
+        while match := re.match(r"(\${(\w*?)})", ''.join(s)):  # Regex Expression to match this syntax
+            variable_value = match.group(1)  # ${VARIABLE_NAME}
+            try:
+                variable_value = environment_variables[match.group(2)]
+            finally:
+                s[match.start(): match.end()] = variable_value
+        new_command.append(''.join(s))
+
+
+def run_command(command, environment=None, pi_path=None):
+    if environment is None:
+        environment = load_environment_variables()
+    if pi_path is None:
+        pi_path = pi_path = environment["PATH"].split(';')
+    parse_command(command, environment)
+    # noinspection PyBroadException
+    try:
+        if len(command) == 0:
+            return 0
+        elif command[0] == "exit":
+            return 0
+        elif command[0] == "setenv":
+            with open(f"{root}/system/env/{command[1]}") as file:
+                file.write(command[2])
+        elif command[0] == "cd":
+            os.chdir(command[1])
+        elif command[0] == "delenv":
+            os.remove(f"{root}/system/env/{command[1]}")
+        elif command[0] == "echo":
+            print(command[1])
+        elif command[0] == "pecho":
+            print(*command[1].split(";"), sep="\n")
+        elif command[0] == "dlp":
+            print("DLP is not complete")  # TODO Complete DLP
+        elif command[0] == "help":
+            print("""
+    Builtin Commands:
+        setenv name value                Set an environment variable
+        help                             See this help message
+        exit                             Exit current session
+        cd path                          Change directory
+        delenv name                      Delete an environment variable
+        echo value                       Print a value
+        pecho value                      Print a value split at ';' 
+        dlp url                          Download a package and install""")
+    except Exception:
+        error_msg = traceback.format_exc()
+        print(error_msg)
+        return 1
+    finally:
+        return 0
+
+
+def interactive_terminal_session():
     terminal_version = "1.0.0"
+    os.chdir(root)
+
+    clear()
+    # noinspection PyCallByClass
+    print(denverapi.ctext.ColoredText.escape("Copyright (c) 2020 xcodz."))
+    # noinspection PyCallByClass
+    print(denverapi.ctext.ColoredText.escape(f"{{fore_blue}}PiTerminal {{fore_green}}[{terminal_version}]"))
+    terminal_running = True
+    while terminal_running:
+        user_command = input(es(os.getcwd().replace(os.sep, "/") + "{fore_magenta}$ "))
+        run_command(user_command, )
+
+
+def start_ui(ui_type):
     if ui_type == "auto-ui":
         ui = {
             "Power": {
@@ -185,70 +264,7 @@ def start_ui(ui_type):
         ui = AutoUi(ui, execute_command)
         ui.start_interface()
     elif ui_type == "terminal":
-        env = os.listdir(f"{root}/system/env/")
-        environment_variables = {k: read_file_str(f"{root}/system/env/{k}") for k in env}
-        pi_path = environment_variables["PATH"].split(';')
-        os.chdir(root)
-
-        clear()
-        # noinspection PyCallByClass
-        print(denverapi.ctext.ColoredText.escape("Copyright (c) 2020 xcodz."))
-        # noinspection PyCallByClass
-        print(denverapi.ctext.ColoredText.escape(f"{{fore_blue}}PiTerminal {{fore_green}}[{terminal_version}]"))
-        terminal_running = True
-        while terminal_running:
-            user_command = input(es(os.getcwd().replace(os.sep, "/") + "{fore_magenta}$ "))
-            command = shlex.split(user_command, True)
-            new_command = []
-            for x in command:
-                s = list(x)
-                while match := re.match(r"(\${(\w*?)})", ''.join(s)):  # Regex Expression to match this syntax
-                    variable_value = match.group(1)  # ${VARIABLE_NAME}
-                    try:
-                        variable_value = environment_variables[match.group(2)]
-                    finally:
-                        s[match.start(): match.end()] = variable_value
-                new_command.append(''.join(s))
-            # noinspection PyBroadException
-            try:
-                if len(new_command) == 0:
-                    continue
-                elif new_command[0] == "exit":
-                    terminal_running = False
-                elif new_command[0] == "setenv":
-                    with open(f"{root}/system/env/{new_command[1]}") as file:
-                        file.write(new_command[2])
-                elif new_command[0] == "refresh":
-                    env = os.listdir(f"{root}/system/env/")
-                    environment_variables = {k: read_file_str(f"{root}/system/env/{k}") for k in env}
-                    pi_path = environment_variables["PATH"].split(";")
-                elif new_command[0] == "cd":
-                    os.chdir(new_command[1])
-                elif new_command[0] == "delenv":
-                    os.remove(f"{root}/system/env/{new_command[1]}")
-                elif new_command[0] == "echo":
-                    print(new_command[1])
-                elif new_command[0] == "pecho":
-                    print(*new_command[1].split(";"), sep="\n")
-                elif new_command[0] == "dlp":
-                    print()
-                elif new_command[0] == "help":
-                    print("""
-Builtin Commands:
-    setenv name value                Set an environment variable
-    help                             See this help message
-    exit                             Exit current session
-    refresh                          Refresh current environment
-    cd path                          Change directory
-    delenv name                      Delete an environment variable
-    echo value                       Print a value
-    pecho value                      Print a value split at ';' 
-    dlp url                          Download a package and install""")
-            except:
-                error_msg = traceback.format_exc()
-                print(error_msg)
-            finally:
-                print()
+        interactive_terminal_session()
 
 
 def execute_script(arguments: list):
