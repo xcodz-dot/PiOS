@@ -1,14 +1,15 @@
-
+import os
 from argparse import ArgumentParser
-from pios import version
-from socket import gethostbyname
-from sys import exit
-from requests import get
 from configparser import ConfigParser
-from packaging.version import Version
 from importlib import import_module
 from shutil import copytree
-import os
+from socket import gethostbyname
+from sys import exit
+
+from packaging.version import Version
+from requests import get
+
+from pios import version
 
 
 def check_for_updates():
@@ -30,39 +31,56 @@ def check_for_updates():
     current_version = Version(version)
     print()
     if pypi_version > current_version and not pypi_version.pre:
-        print("A New Stable release is available, upgrade via this command: 'pip install PiOS --upgrade'")
+        print(
+            "A New Stable release is available, upgrade via this command: 'pip install PiOS --upgrade'"
+        )
     if github_version > current_version:
         if github_version.pre:
             if github_version > current_version:
-                print("A Github Beta release is available, upgrade via this command: "
-                      "'pip install https://github.com/xcodz-dot/PiOS/tarball/main'")
+                print(
+                    "A Github Beta release is available, upgrade via this command: "
+                    "'pip install https://github.com/xcodz-dot/PiOS/tarball/main'"
+                )
         elif github_version > pypi_version and github_version > current_version:
-            print("A Stable Github release is available, the release have not been uploaded to PyPI, upgrade "
-                  "via this command: 'pip install https://github.com/xcodz-dot/PiOS/tarball/main'")
+            print(
+                "A Stable Github release is available, the release have not been uploaded to PyPI, upgrade "
+                "via this command: 'pip install https://github.com/xcodz-dot/PiOS/tarball/main'"
+            )
     if recommended_version > current_version:
-        print("This version is no longer supported, please update using one of the commands above (stable release is "
-              "recommended)")
+        print(
+            "This version is no longer supported, please update using one of the commands above (stable release is "
+            "recommended)"
+        )
 
 
 def check_for_internet():
     # noinspection PyBroadException
     try:
         gethostbyname("https://www.google.com/")
-    except:
+    except Exception:
         return False
     finally:
         return True
 
 
-if __name__ == '__main__':
-    parser = ArgumentParser(description="PiOS boot manager. This boot manager allows the user to run PiOS with other"
-                                        "configurations", fromfile_prefix_chars="@")
+if __name__ == "__main__":
+    parser = ArgumentParser(
+        description="PiOS boot manager. This boot manager allows the user to run PiOS with other"
+        "configurations",
+        fromfile_prefix_chars="@",
+    )
 
     parser.version = f"PiOS ({version})"
 
-    parser.add_argument("-f", "--operating-system", help="Specify a Operating System to load and run",
-                        default="pios")
-    parser.add_argument("-c", "--check-upgrade", help="Check for upgrades", action="store_true")
+    parser.add_argument(
+        "-f",
+        "--operating-system",
+        help="Specify a Operating System to load and run",
+        default="pios",
+    )
+    parser.add_argument(
+        "-c", "--check-upgrade", help="Check for upgrades", action="store_true"
+    )
     parser.add_argument("-v", "--version", action="version")
 
     args = parser.parse_args()
@@ -73,8 +91,10 @@ if __name__ == '__main__':
         try:
             os.chdir(f"{__file__}/../os_instance/{args.operating_system}")
         except OSError:
-            copytree(f"{__file__}/../os_recreation_data/{args.operating_system}",
-                     f"{__file__}/../os_instance/{args.operating_system}")
+            copytree(
+                f"{__file__}/../os_recreation_data/{args.operating_system}",
+                f"{__file__}/../os_instance/{args.operating_system}",
+            )
             os.chdir(f"{__file__}/../os_instance/{args.operating_system}")
         operating_system = import_module(f"pios.installed_os.{args.operating_system}")
         operating_system.main()

@@ -1,20 +1,21 @@
-import denverapi
-import os
-import json
-import secrets
 import base64
-import socket
-import sys
-from time import sleep
-import shlex
-import re
-import subprocess
-import traceback
 import glob
+import json
+import os
+import re
+import secrets
+import shlex
+import socket
+import subprocess
+import sys
+import traceback
+from time import sleep
+
+import denverapi
 
 sys.path.append(os.path.abspath(f"{__file__}/.."))
 
-root = ''
+root = ""
 
 es = denverapi.ctext.ColoredText.escape
 
@@ -61,7 +62,9 @@ class AutoUi:
             for index, name in zip(range(len(sub_dirs)), sub_dirs):
                 print(",{} {}".format(index, name))
             last_index = index + 1
-            for index, name in zip(range(last_index, len(actions) + last_index + 1), actions):
+            for index, name in zip(
+                range(last_index, len(actions) + last_index + 1), actions
+            ):
                 print(".{} {}".format(index, name))
             user_input = input("->", fore="magenta")
             if user_input == ".." and len(self.ui_path) > 0:
@@ -121,17 +124,12 @@ def generate_default_directories_and_files():
             "enabled": False,
             "host-ipv4": "127.0.0.1",
             "host-port": 3700,
-            "join-password": base64.encodebytes(secrets.token_bytes(4)).decode()
+            "join-password": base64.encodebytes(secrets.token_bytes(4)).decode(),
         },
-        "security": {
-            "installation": {
-                "allow-unofficial-installer": False
-            }
+        "security": {"installation": {"allow-unofficial-installer": False}},
+        "system": {
+            "user-interface": "auto-ui",
         },
-        "system":
-            {
-                "user-interface": "auto-ui",
-            }
     }
     make_directory_if_not_present("home")
     make_directory_if_not_present("user")
@@ -184,15 +182,17 @@ def parse_command(command, environment_variables=None):
     new_command = []
     for x in command:
         s = list(x)
-        while match := re.match(r"(\${(\w*?)})", ''.join(s)):  # Regex Expression to match this syntax
+        while match := re.match(
+            r"(\${(\w*?)})", "".join(s)
+        ):  # Regex Expression to match this syntax
             variable_value = match.group(1)  # ${VARIABLE_NAME}
             try:
                 variable_value = environment_variables[match.group(2)]
             except KeyError:
                 variable_value = match.group(1)
             finally:
-                s[match.start(): match.end()] = variable_value
-        new_command.append(''.join(s))
+                s[match.start() : match.end()] = variable_value
+        new_command.append("".join(s))
     return new_command
 
 
@@ -200,7 +200,7 @@ def run_command(command, environment=None, pi_path=None):
     if environment is None:
         environment = load_environment_variables()
     if pi_path is None:
-        pi_path = pi_path = environment["PATH"].split(';')
+        pi_path = pi_path = environment["PATH"].split(";")
     command = parse_command(command, environment)
     # noinspection PyBroadException
     try:
@@ -222,7 +222,8 @@ def run_command(command, environment=None, pi_path=None):
         elif command[0] == "dlp":
             print("DLP is not complete")  # TODO Complete DLP
         elif command[0] == "help":
-            print("""
+            print(
+                """
     Builtin Commands:
         setenv name value                Set an environment variable
         help                             See this help message
@@ -230,8 +231,9 @@ def run_command(command, environment=None, pi_path=None):
         cd path                          Change directory
         delenv name                      Delete an environment variable
         echo value                       Print a value
-        pecho value                      Print a value split at ';' 
-        dlp url                          Download a package and install""")
+        pecho value                      Print a value split at ';'
+        dlp url                          Download a package and install"""
+            )
     except Exception:
         error_msg = traceback.format_exc()
         print(error_msg)
@@ -247,7 +249,11 @@ def interactive_terminal_session():
     # noinspection PyCallByClass
     print(denverapi.ctext.ColoredText.escape("Copyright (c) 2020 xcodz."))
     # noinspection PyCallByClass
-    print(denverapi.ctext.ColoredText.escape(f"{{fore_blue}}PiTerminal {{fore_green}}[{terminal_version}]"))
+    print(
+        denverapi.ctext.ColoredText.escape(
+            f"{{fore_blue}}PiTerminal {{fore_green}}[{terminal_version}]"
+        )
+    )
     terminal_running = True
     while terminal_running:
         user_command = input(es(os.getcwd().replace(os.sep, "/") + "{fore_magenta}$ "))
@@ -259,11 +265,8 @@ def interactive_terminal_session():
 def start_ui(ui_type):
     if ui_type == "auto-ui":
         ui = {
-            "Power": {
-                "Shut Down": "raise PiosShutdown",
-                "Reboot": "raise PiosReboot"
-            },
-            "Terminal": "start_ui('terminal')"
+            "Power": {"Shut Down": "raise PiosShutdown", "Reboot": "raise PiosReboot"},
+            "Terminal": "start_ui('terminal')",
         }
         clear()
         ui = AutoUi(ui, execute_command)
@@ -273,7 +276,9 @@ def start_ui(ui_type):
 
 
 def execute_script(arguments: list):
-    return subprocess.run(arguments, stderr=sys.stderr, stdout=sys.stdout, stdin=sys.stdin)
+    return subprocess.run(
+        arguments, stderr=sys.stderr, stdout=sys.stdout, stdin=sys.stdin
+    )
 
 
 def execute_command(statement):
