@@ -1,4 +1,4 @@
-denver-api>=2.2.2
+denver-api>=2.5.4
 setuptools~=50.3.0
 requests
 packaging

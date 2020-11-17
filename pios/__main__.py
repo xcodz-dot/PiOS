@@ -89,12 +89,18 @@ if __name__ == "__main__":
         check_for_updates()
     else:
         try:
-            os.chdir(f"{__file__}/../os_instance/{args.operating_system}")
+            os.chdir(
+                os.path.abspath(f"{__file__}/../os_instance/{args.operating_system}")
+            )
         except OSError:
             copytree(
-                f"{__file__}/../os_recreation_data/{args.operating_system}",
-                f"{__file__}/../os_instance/{args.operating_system}",
+                os.path.abspath(
+                    f"{__file__}/../os_recreation_data/{args.operating_system}"
+                ),
+                os.path.abspath(f"{__file__}/../os_instance/{args.operating_system}"),
             )
-            os.chdir(f"{__file__}/../os_instance/{args.operating_system}")
+            os.chdir(
+                os.path.abspath(f"{__file__}/../os_instance/{args.operating_system}")
+            )
         operating_system = import_module(f"pios.installed_os.{args.operating_system}")
         operating_system.main()
