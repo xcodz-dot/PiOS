@@ -1,0 +1,16 @@
+site_name: PiOS Documentation
+site_description: PiOS, A Python Written Operating System
+site_author: Xcodz
+
+repo_url: https://github.com/xcodz-dot/PiOS
+repo_name: PiOS
+
+theme:
+  name: material
+
+nav:
+  - Home: index.md
+  - About: about.md
+  - DevGuide: developer/index.md
+  - Manuals: manual/index.md
+

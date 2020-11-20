@@ -138,7 +138,7 @@ def run_command(command, environment=None, pi_path=None):
         elif command[0] == "exit":
             return "e"
         elif command[0] == "setenv":
-            with open(f"{root}/system/env/{command[1]}") as file:
+            with open(f"{root}/system/env/{command[1]}", "w") as file:
                 file.write(command[2])
         elif command[0] == "cd":
             os.chdir(command[1])

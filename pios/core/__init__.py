@@ -12,3 +12,5 @@ original_stderr = sys.stderr
 original_stdin = sys.stdin
 
 root = ""
+
+__version__ = "0.7.0"
