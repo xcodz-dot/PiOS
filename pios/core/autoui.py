@@ -70,19 +70,6 @@ def write_file(file, data):
         fp.write(data)
 
 
-def start_ui(ui_type):
-    if ui_type == "auto-ui":
-        ui = {
-            "Power": {"Shut Down": "raise PiosShutdown", "Reboot": "raise PiosReboot"},
-            "Terminal": "start_ui('terminal')",
-        }
-        clear()
-        ui = AutoUi(ui, execute_command)
-        ui.start_interface()
-    elif ui_type == "terminal":
-        interactive_terminal_session()
-
-
 def execute_command(statement):
     exec(statement, globals())
 

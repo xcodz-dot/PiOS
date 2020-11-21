@@ -6,7 +6,7 @@ f = open(os.path.expanduser("~/.pios/root.json"), "w")
 f.write(
     f"""
 {{
-    "root": "{os.getcwd()}"
+    "root": "{os.getcwd().replace(os.sep, os.altsep)}"
 }}"""
 )
 f.close()
@@ -17,10 +17,7 @@ from time import sleep
 from pios.core import *
 from pios.core.remote import *
 
-sys.path.append(os.path.abspath(f"{__file__}/.."))
-
-with open("system/_installer.u256", "r+b") as file_i_sha:
-    sha256_installer = file_i_sha.read()
+sys.path.insert(0, os.path.abspath(f"{__file__}/.."))
 
 
 def start_os():

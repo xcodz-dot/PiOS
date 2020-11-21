@@ -3,12 +3,14 @@
     "data_directories": [],
     "data_files": [],
     "icon": "icon.cpg",
-    "installer": "/home/amaan/Desktop/PiOS-SDK/pios_sdk/_installer.py",
+    "installer": "d:\\xcodz\\pios-sdk\\pios_sdk\\_installer.py",
     "main_module": "main.py",
     "modules": [],
     "packages": [],
     "requirements": [],
     "sdk_packages": [
-        "pios_sdk_info"
+        "pios_compatibility",
+        "pios_sdk_info",
+        "pios_terminal"
     ]
 }

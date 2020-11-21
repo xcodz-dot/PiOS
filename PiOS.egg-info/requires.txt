@@ -1,0 +1,7 @@
+denver-api
+setuptools~=50.3.0
+requests
+packaging
+
+[SDK]
+PiOS-SDK

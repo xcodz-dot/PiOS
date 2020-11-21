@@ -1,8 +1,6 @@
-import base64
-import json
-import os
-import secrets
+import time
 
+import pios.core.apps as apps
 from pios.core.autoui import AutoUi
 from pios.core.terminal import *
 
@@ -41,7 +39,6 @@ def generate_default_directories_and_files():
             "host-port": 3700,
             "join-password": base64.encodebytes(secrets.token_bytes(4)).decode(),
         },
-        "security": {"installation": {"allow-unofficial-installer": False}},
         "system": {
             "user-interface": "auto-ui",
         },
@@ -76,6 +73,13 @@ def start_ui(ui_type):
         ui = {
             "Power": {"Shut Down": "raise PiosShutdown", "Reboot": "raise PiosReboot"},
             "Terminal": "start_ui('terminal')",
+            "System": {
+                "App Manager": {
+                    "Install": "apps.install_interface()",
+                    "Uninstall": "apps.uninstall_interface()",
+                }
+            },
+            "Apps": {k: f"run_app({repr(k)})" for k in apps.list_apps().keys()},
         }
         clear()
         ui = AutoUi(ui, execute_command)
@@ -84,5 +88,21 @@ def start_ui(ui_type):
         interactive_terminal_session()
 
 
+def run_app(name: str):
+    before_app = time.perf_counter()
+    exit_interface = apps.run_app(name)
+    after_app = time.perf_counter()
+    print()
+    time_used = after_app - before_app
+    print(
+        "Process returned",
+        exit_interface["EXIT_CODE"],
+        "in",
+        str(round(time_used, 2)) + "s",
+    )
+    input("Press enter to continue")
+
+
 def execute_command(statement):
+    clear()
     exec(statement, globals())
