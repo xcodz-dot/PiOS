@@ -40,7 +40,6 @@ def generate_default_directories_and_files():
             "host-port": 3700,
             "join-password": base64.encodebytes(secrets.token_bytes(4)).decode(),
         },
-        "security": {"installation": {"allow-unofficial-installer": False}},
         "system": {
             "user-interface": "auto-ui",
         },
@@ -92,24 +91,24 @@ class AutoUi:
                     actions.append(k)
             sub_dirs.sort()
             actions.sort()
+            sum_up = [(x, "d") for x in sub_dirs] + [(x, "a") for x in actions]
             if len(self.ui_path) > 0:
                 print(", ..")
-            index = 0
-            for index, name in zip(range(len(sub_dirs)), sub_dirs):
-                print(",{} {}".format(index, name))
-            last_index = index + 1
-            for index, name in zip(
-                range(last_index, len(actions) + last_index + 1), actions
-            ):
-                print(".{} {}".format(index, name))
-            user_input = input("->", fore="magenta")
-            if user_input == ".." and len(self.ui_path) > 0:
-                self.ui_path.pop(-1)
+            for item in range(len(sum_up)):
+                x, t = sum_up[item]
+                print(("," if t == "d" else ".") + str(item) + " " + x)
+            user_input = input(">", fore="magenta")
+            if user_input == "..":
+                if not len(self.ui_path) == 0:
+                    self.ui_path.pop(-1)
             elif user_input.isnumeric():
-                if int(user_input) in range(0, last_index):
-                    self.ui_path.append(sub_dirs[int(user_input)])
-                elif int(user_input) in range(last_index, index + 1):
-                    self.command(current_dir[actions[last_index - int(user_input)]])
+                user_input = int(user_input)
+                if user_input < len(sum_up):
+                    x, t = sum_up[user_input]
+                    if t == "d":
+                        self.ui_path.append(x)
+                    else:
+                        self.command(current_dir[x])
             clear()
 
     def get(self):
