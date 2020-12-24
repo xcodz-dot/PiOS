@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/PiOS.iml" filepath="$PROJECT_DIR$/.idea/PiOS.iml" />
       <module fileurl="file://$PROJECT_DIR$/../PiOS-SDK/.idea/PiOS-SDK.iml" filepath="$PROJECT_DIR$/../PiOS-SDK/.idea/PiOS-SDK.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../pios-apps/.idea/pios-apps.iml" filepath="$PROJECT_DIR$/../pios-apps/.idea/pios-apps.iml" />
     </modules>
   </component>
 </project>
