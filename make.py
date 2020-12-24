@@ -1,5 +1,4 @@
 import shutil
-import sys
 
 from denverapi.autopyb import *
 
@@ -7,9 +6,9 @@ auto = BuildTasks()
 
 
 @auto.task()
-def clean(args):
+def clean():
     """Clean up"""
-    run_command([sys.executable, "setup.py", "clean"])
+    terminal.run_command([sys.executable, "setup.py", "clean"])
     try:
         shutil.rmtree("dist")
     except:
@@ -25,30 +24,30 @@ def clean(args):
 
 
 @auto.task(clean)
-def sdist(args):
+def sdist():
     """Build Source Distribution"""
-    run_command([sys.executable, "setup.py", "sdist"])
+    terminal.run_command([sys.executable, "setup.py", "sdist"])
 
 
 @auto.task(clean)
-def wheel(args):
+def wheel():
     """Build wheel package"""
-    ensure_pip_package("wheel")
-    run_command([sys.executable, "setup.py", "bdist_wheel"])
+    pip.ensure_pip_package("wheel")
+    terminal.run_command([sys.executable, "setup.py", "bdist_wheel"])
 
 
 @auto.task(wheel, sdist)
-def publish(args):
+def publish():
     """publish packages to PyPI"""
-    ensure_pip_package("twine")
-    run_command([sys.executable, "-m", "twine", "upload", "dist/*"])
+    pip.ensure_pip_package("twine")
+    terminal.run_command([sys.executable, "-m", "twine", "upload", "dist/*"])
 
 
 @auto.task()
-def precommit(args):
+def precommit():
     """pre-commit run to make required changes"""
-    ensure_pip_package("pre-commit")
-    run_command(["pre-commit", "run", "-a"])
+    pip.ensure_pip_package("pre-commit")
+    terminal.run_command(["pre-commit", "run", "-a"])
 
 
 auto.interact()
