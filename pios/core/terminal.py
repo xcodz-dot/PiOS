@@ -111,14 +111,15 @@ def parse_command(command, environment_variables=None):
     new_command = []
     for x in command:
         s = list(x)
-        while match := re.match(
-            r"(\${(\w*?)})", "".join(s)
-        ):  # Regex Expression to match this syntax
+        while True:
+            match = re.match(r"(\${(\w*?)})", "".join(s))
+            if not match:
+                break
             variable_value = match.group(1)  # ${VARIABLE_NAME}
             try:
                 variable_value = environment_variables[match.group(2)]
             except KeyError:
-                variable_value = match.group(1)
+                variable_value = f"{{{match.group(2)}}}"
             finally:
                 s[match.start() : match.end()] = variable_value
         new_command.append("".join(s))
@@ -145,7 +146,7 @@ def run_command(command, environment=None, pi_path=None):
         elif command[0] == "delenv":
             os.remove(f"{root}/system/env/{command[1]}")
         elif command[0] == "echo":
-            print(command[1])
+            print(" ".join(command[1:]))
         elif command[0] == "pecho":
             print(*command[1].split(";"), sep="\n")
         elif command[0] == "dlp":
