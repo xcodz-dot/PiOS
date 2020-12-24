@@ -1,9 +1,9 @@
 import json
 import os
-import runpy
 import secrets
 import shutil
 import traceback
+import types
 from time import sleep
 
 from denverapi.ctext import input, print
@@ -12,8 +12,8 @@ from .sysinterface import *
 from .terminal import root
 
 
-def generate_empty_environment():
-    return runpy._run_code("", {})
+def generate_empty_environment(name="__main__", doc=""):
+    return types.ModuleType(name, doc).__dict__
 
 
 def generate_pios_app_environment():
@@ -93,6 +93,11 @@ def install_app(file_name, interactive=False):
             )
     except Exception as e:
         raise InstallerScriptError(f"{e.__class__.__name__}: {str(e)}")
+    try:
+        shutil.rmtree(f"{root}/temp")
+        os.remove(f"{root}/.app.zip")
+    except:
+        pass
     return installer_rval
 
 
@@ -107,7 +112,7 @@ def install_interface():
     installed = False
     try:
         ex = False
-        installed = install_app(archive_path, False)
+        installed = install_app(archive_path, True)
     except Exception as e:
         print("Installing Archive - Error", fore="red")
         ex = True
