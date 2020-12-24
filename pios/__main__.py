@@ -1,10 +1,11 @@
+import datetime
+import json
 import os
+import subprocess
+import sys
 from argparse import ArgumentParser
 from configparser import ConfigParser
-from importlib import import_module
-from shutil import copytree
 from socket import gethostbyname
-from sys import exit
 
 from packaging.version import Version
 from requests import get
@@ -15,13 +16,13 @@ from pios import version
 def check_for_updates():
     if not check_for_internet():
         print("Internet is required to check for updates")
-        exit(1)
+        return
     print("Searching for updates")
     print("  Getting version file")
     response = get("https://github.com/xcodz-dot/PiOS/raw/main/version.ini")
     if not response.ok:
         print(f"    Error: Response code was not as expected ({response.status_code})")
-        exit(1)
+        return
     print("Reading the file")
     version_info = ConfigParser()
     version_info.read_string(response.content.decode())
@@ -85,22 +86,37 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    if args.check_upgrade:
+    try:
+        with open(os.path.expanduser("~/.pios.json")) as file:
+            config = json.load(file)
+    except:
+        config = {"date": datetime.datetime.now().toordinal() - 1}
+
+    last_check = datetime.datetime.fromordinal(config["date"])
+    today = datetime.datetime.fromordinal(datetime.datetime.now().toordinal())
+
+    difference = today - last_check
+
+    if args.check_upgrade or difference.days > 0:
         check_for_updates()
-    else:
-        if not os.path.exists(os.path.expanduser("~/.pios")):
-            os.mkdir(os.path.expanduser("~/.pios"))
-        if not os.path.exists(os.path.expanduser("~/.pios/os_instance")):
-            os.mkdir(os.path.expanduser("~/.pios/os_instance"))
-        try:
-            os.chdir(os.path.expanduser(f"~/.pios/os_instance/{args.operating_system}"))
-        except OSError:
-            copytree(
-                os.path.abspath(
-                    f"{__file__}/../os_recreation_data/{args.operating_system}"
-                ),
-                os.path.expanduser(f"~/.pios/os_instance/{args.operating_system}"),
-            )
-            os.chdir(os.path.expanduser(f"~/.pios/os_instance/{args.operating_system}"))
-        operating_system = import_module(f"pios.installed_os.{args.operating_system}")
-        operating_system.main()
+        config["date"] = datetime.datetime.now().toordinal()
+        with open(os.path.expanduser("~/.pios.json"), "w") as file:
+            json.dump(config, file)
+    if difference.days > 0 and not args.check_upgrade:
+        input("Enter to continue to PiOS")
+    if not args.check_upgrade:
+        while True:
+            try:
+                process = subprocess.run(
+                    [sys.executable, "-m", f"pios.launchers.{args.operating_system}"]
+                )
+                if process.returncode == 0:
+                    break
+                elif process.returncode == 1:
+                    continue
+            except KeyboardInterrupt:
+                pass
+            except SystemExit:
+                pass
+            except Exception:
+                pass
