@@ -29,32 +29,33 @@ def start_os():
     clear()
 
     settings = json.loads(read_file_str("system/settings.json"))
-
     start_ui(settings["system"]["user-interface"])
 
 
 def main():
     global root
     root = os.getcwd()
-    pios_running = True
-    while pios_running:
-        try:
-            start_os()
-            pios_running = False
-        except PiosShutdown:
-            clear()
-            print("Shutting Down", fore="red")
-            pios_running = False
-        except PiosReboot:
-            clear()
-            print("Rebooting", fore="red")
-        except KeyboardInterrupt:
-            clear()
-            print("Forced Rebooting", fore="red")
-        except Exception as e:
-            clear()
-            print(f"{repr(e)} [rebooting]", fore="red")
-            sleep(2)
-        sleep(1)
+    rcode = 0
+    try:
+        start_os()
+    except PiosShutdown:
         clear()
-        os.chdir(root)
+        print("Shutting Down", fore="red")
+        rcode = 0
+    except PiosReboot:
+        clear()
+        print("Rebooting", fore="red")
+        rcode = 1
+    except KeyboardInterrupt:
+        clear()
+        print("Forced Rebooting", fore="red")
+        rcode = 1
+    except Exception as e:
+        clear()
+        print(f"{repr(e)} [rebooting]", fore="red")
+        sleep(2)
+        rcode = 1
+    sleep(1)
+    clear()
+    os.chdir(root)
+    return rcode
