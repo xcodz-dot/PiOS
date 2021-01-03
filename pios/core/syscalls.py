@@ -4,6 +4,8 @@ import pios.core.apps as apps
 from pios.core.autoui import AutoUi
 from pios.core.terminal import *
 
+ui = {}
+
 
 class PiosShutdown(Exception):
     pass
@@ -70,22 +72,78 @@ def write_file(file, data):
 
 def start_ui(ui_type):
     if ui_type == "auto-ui":
+        global ui
         ui = {
             "Power": {"Shut Down": "raise PiosShutdown", "Reboot": "raise PiosReboot"},
             "Terminal": "start_ui('terminal')",
             "System": {
                 "App Manager": {
                     "Install": "apps.install_interface()",
-                    "Uninstall": "apps.uninstall_interface()",
+                    "Uninstall": {
+                        k: f"uninstall_app({repr(k)})" for k in apps.list_apps().keys()
+                    },
                 }
             },
             "Apps": {k: f"run_app({repr(k)})" for k in apps.list_apps().keys()},
         }
         clear()
-        ui = AutoUi(ui, execute_command)
-        ui.start_interface()
+        aui = AutoUi(ui, execute_command)
+        aui.start_interface()
     elif ui_type == "terminal":
         interactive_terminal_session()
+
+
+def uninstall_app(name: str):
+    global ui
+    print(f"How would you like to uninstall '{name}'?")
+    print(
+        """
+0: Erase everything including all data
+1: Leave data in its place and remove the app
+2: Cancel
+>""",
+        flush=True,
+        end="",
+    )
+    choice = input()
+    if not choice.isnumeric():
+        print("Uninstall Canceled")
+    else:
+        choice = int(choice)
+        if choice == 0:
+            if (
+                not input(
+                    "Are you sure that you want to completely remove it (y/n)> "
+                ).lower()
+                == "y"
+            ):
+                print("Uninstall Canceled")
+                input("Press Enter to Continue")
+                return
+            print("Erasing Everything")
+            apps.uninstall(name, False, True)
+        elif choice == 1:
+            if (
+                not input(
+                    "Are you sure that you want to partially remove it (y/n)> "
+                ).lower()
+                == "y"
+            ):
+                print("Uninstall Canceled")
+                input("Press Enter to Continue")
+                return
+            print("Erasing App (Leaving Data)")
+            apps.uninstall(name, True, True)
+        else:
+            print("Uninstall Canceled")
+            input("Press Enter to Continue")
+            return
+
+    ui["Apps"] = {k: f"run_app({repr(k)})" for k in apps.list_apps().keys()}
+    ui["System"]["App Manager"]["Uninstall"] = {
+        k: f"uninstall_app({repr(k)})" for k in apps.list_apps().keys()
+    }
+    input("Press Enter to Continue")
 
 
 def run_app(name: str):

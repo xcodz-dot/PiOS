@@ -45,16 +45,18 @@ def main():
     except PiosReboot:
         clear()
         print("Rebooting", fore="red")
-        rcode = 1
+        rcode = 255
     except KeyboardInterrupt:
         clear()
         print("Forced Rebooting", fore="red")
-        rcode = 1
+        rcode = 255
     except Exception as e:
         clear()
-        print(f"{repr(e)} [rebooting]", fore="red")
-        sleep(2)
-        rcode = 1
+        traceback.print_exc()
+        input("Press Enter to Continue")
+        print(f"Rebooting", fore="red")
+        sleep(1)
+        rcode = 255
     sleep(1)
     clear()
     os.chdir(root)

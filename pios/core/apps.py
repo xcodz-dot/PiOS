@@ -40,7 +40,7 @@ sys.path.insert(0, {repr(path)})
         newline = "\n"
         exec(
             f"""
-{newline.join([f"{k} = {v}" for k, v in kwargs.items()])}
+{newline.join([f"{k} = {repr(v)}" for k, v in kwargs.items()])}
 """,
             self.env,
         )
@@ -65,10 +65,7 @@ def install_app(file_name, interactive=False):
         if not os.path.isdir(f"{root}/user/programs/{app_info['name']}"):
             os.mkdir(f"{root}/user/programs/{app_info['name']}")
         else:
-            shutil.rmtree(f"{root}/user/programs/{app_info['name']}")
-            os.mkdir(f"{root}/user/programs/{app_info['name']}")
-        if os.path.isdir(f"{root}/user/programs/{app_info['name']}/instance"):
-            shutil.rmtree(f"{root}/user/programs/{app_info['name']}/instance")
+            uninstall(app_info["name"], True, False)
     except Exception as e:
         if interactive:
             print(
@@ -108,6 +105,8 @@ def install_interface():
     print(f"Installing Archive - Verifying Archive")
     if not os.path.isfile(archive_path):
         print("Installing Archive - Verification Failed (File Not Found)", fore="red")
+        input("Press Enter To Continue")
+        return
     exc = None
     installed = False
     try:
@@ -153,8 +152,21 @@ def install_interface():
     input("Press Enter To Continue")
 
 
-def uninstall_interface():
-    print("PiOS Uninstall")
+def uninstall(app_name: str, partial=False, interactive=False):
+    program = list_apps()[app_name]
+    list_of_removal = os.listdir(program[0])
+    if "instance" in list_of_removal and partial:
+        if interactive:
+            print("Storing Instance")
+        list_of_removal.remove("instance")
+    for x in list_of_removal:
+        path = program[0] + "/" + x
+        if os.path.isdir(path):
+            shutil.rmtree(path)
+        elif os.path.isfile(path):
+            os.remove(path)
+    if not partial:
+        shutil.rmtree(program[0])
 
 
 def run_app(name: str):

@@ -13,9 +13,10 @@ from requests import get
 from pios import version
 
 
-def check_for_updates():
+def check_for_updates(silece=False):
     if not check_for_internet():
-        print("Internet is required to check for updates")
+        if not silece:
+            print("Internet is required to check for updates")
         return
     print("Searching for updates")
     print("  Getting version file")
@@ -40,12 +41,12 @@ def check_for_updates():
             if github_version > current_version:
                 print(
                     "A Github Beta release is available, upgrade via this command: "
-                    "'pip install https://github.com/xcodz-dot/PiOS/tarball/main'"
+                    "'pip install https://github.com/xcodz-dot/PiOS/tarball/main -U'"
                 )
         elif github_version > pypi_version and github_version > current_version:
             print(
                 "A Stable Github release is available, the release have not been uploaded to PyPI, upgrade "
-                "via this command: 'pip install https://github.com/xcodz-dot/PiOS/tarball/main'"
+                "via this command: 'pip install https://github.com/xcodz-dot/PiOS/tarball/main -U'"
             )
     if recommended_version > current_version:
         print(
@@ -57,11 +58,10 @@ def check_for_updates():
 def check_for_internet():
     # noinspection PyBroadException
     try:
-        gethostbyname("https://www.google.com/")
+        gethostbyname("www.google.com")
     except Exception:
         return False
-    finally:
-        return True
+    return True
 
 
 if __name__ == "__main__":
@@ -98,7 +98,7 @@ if __name__ == "__main__":
     difference = today - last_check
 
     if args.check_upgrade or difference.days > 0:
-        check_for_updates()
+        check_for_updates(True)
         config["date"] = datetime.datetime.now().toordinal()
         with open(os.path.expanduser("~/.pios.json"), "w") as file:
             json.dump(config, file)
@@ -112,8 +112,10 @@ if __name__ == "__main__":
                 )
                 if process.returncode == 0:
                     break
-                elif process.returncode == 1:
+                elif process.returncode == 255:
                     continue
+                elif process.returncode == 1:
+                    break
             except KeyboardInterrupt:
                 pass
             except SystemExit:

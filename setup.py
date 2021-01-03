@@ -4,11 +4,11 @@ from denverapi import pysetup
 with open("README.md") as file:
     long_description = file.read()
 
-requirements = ["denver-api", "setuptools~=50.3.0", "requests", "packaging"]
+requirements = ["denver-api>=2.6.0b3", "setuptools~=51.1.0", "requests", "packaging"]
 
 setuptools.setup(
     name="PiOS",
-    version="0.8.0",
+    version="0.8.1",
     packages=setuptools.find_packages()
     + setuptools.find_namespace_packages(include=["pios.*", "pios"]),
     package_data=pysetup.find_package_data("pios", "pios"),

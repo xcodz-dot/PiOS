@@ -7,10 +7,39 @@ import secrets
 import shlex
 import subprocess
 import traceback
+import types
 
 import denverapi.ctext
 
 from pios.core import *
+
+
+def generate_empty_environment(name="__main__", doc=""):
+    return types.ModuleType(name, doc).__dict__
+
+
+class AppEnvironment:
+    def __init__(self, env):
+        self.env = env
+
+    def add_lib_to_path(self, path: str):
+        exec(
+            f"""
+import sys
+
+sys.path.insert(0, {repr(path)})
+""",
+            self.env,
+        )
+
+    def add_headers(self, **kwargs):
+        newline = "\n"
+        exec(
+            f"""
+{newline.join([f"{k} = {repr(v)}" for k, v in kwargs.items()])}
+""",
+            self.env,
+        )
 
 
 class PiosShutdown(Exception):
@@ -93,6 +122,7 @@ def discover_modules(path):
             modules.extend(glob.glob(f"{directory}/*.pyc"))
             modules.extend(glob.glob(f"{directory}/*.pyw"))
             modules.extend(glob.glob(f"{directory}/*.pyo"))
+    return modules
 
 
 def load_environment_variables(env_dir=None):
@@ -126,11 +156,18 @@ def parse_command(command, environment_variables=None):
     return new_command
 
 
+def search_in_paths(name: str, path):
+    for x in path:
+        if os.path.basename(os.path.splitext(x)[0]) == name:
+            return x
+
+
 def run_command(command, environment=None, pi_path=None):
     if environment is None:
         environment = load_environment_variables()
     if pi_path is None:
-        pi_path = pi_path = environment["PATH"].split(";")
+        pi_path = environment["PATH"].split(";")
+    py_modules = [x.replace(os.sep, os.altsep) for x in discover_modules(pi_path)]
     command = parse_command(command, environment)
     # noinspection PyBroadException
     try:
@@ -164,6 +201,16 @@ def run_command(command, environment=None, pi_path=None):
         pecho value                      Print a value split at ';'
         dlp url                          Download a package and install"""
             )
+        else:
+            d = search_in_paths(command[0], py_modules)
+            if not d:
+                print(f"No such command '{command[0]}'", fore="yellow")
+            elif not os.path.isfile(d):
+                print(f"'{command[0]} is not a file'")
+            else:
+                result = subprocess.run([sys.executable, d, *command[1:]])
+                if result.returncode != 0:
+                    return 1
     except Exception:
         error_msg = traceback.format_exc()
         print(error_msg)
