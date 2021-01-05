@@ -8,7 +8,7 @@ requirements = ["denver-api>=2.6.0b3", "setuptools~=51.1.0", "requests", "packag
 
 setuptools.setup(
     name="PiOS",
-    version="0.8.1",
+    version="0.9.0",
     packages=setuptools.find_packages()
     + setuptools.find_namespace_packages(include=["pios.*", "pios"]),
     package_data=pysetup.find_package_data("pios", "pios"),
