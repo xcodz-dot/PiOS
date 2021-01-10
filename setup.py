@@ -4,7 +4,15 @@ from denverapi import pysetup
 with open("README.md") as file:
     long_description = file.read()
 
-requirements = ["denver-api>=2.6.0b3", "setuptools~=51.1.0", "requests", "packaging"]
+requirements = [
+    "denver-api>=2.6.0b3",
+    "setuptools~=51.1.0",
+    "requests",
+    "packaging",
+    "rich",
+    "Pyparsing",
+    "html2text",
+]
 
 setuptools.setup(
     name="PiOS",
