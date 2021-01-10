@@ -1,0 +1,5 @@
+# try for localhost servers, if the user is using the localhost server use it.
+# it is not recommended to remove any of the following repositories
+bdtpfserv://localhost:1000/contrib    # Uploaded Projects
+bdtpfserv://localhost:1000/main       # Main Projects
+bdtpfserv://localhost:1000/sys        # Core System Utilities and Libraries

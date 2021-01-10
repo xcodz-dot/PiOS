@@ -1,8 +1,3 @@
-import base64
-import json
-import os
-import secrets
-
 from pios.core.terminal import *
 
 
@@ -93,10 +88,13 @@ class AutoUi:
             actions.sort()
             sum_up = [(x, "d") for x in sub_dirs] + [(x, "a") for x in actions]
             if len(self.ui_path) > 0:
-                print(", ..")
+                print(", ..", fore="cyan")
             for item in range(len(sum_up)):
                 x, t = sum_up[item]
-                print(("," if t == "d" else ".") + str(item) + " " + x)
+                print(
+                    ("," if t == "d" else ".") + str(item) + " " + x,
+                    fore="cyan" if t == "d" else "green",
+                )
             user_input = input(">", fore="magenta")
             if user_input == "..":
                 if not len(self.ui_path) == 0:
