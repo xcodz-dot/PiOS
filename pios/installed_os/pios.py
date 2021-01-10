@@ -14,7 +14,6 @@ f.close()
 
 from time import sleep
 
-from pios.core import *
 from pios.core.remote import *
 
 sys.path.insert(0, os.path.abspath(f"{__file__}/.."))

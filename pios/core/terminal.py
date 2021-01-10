@@ -1,3 +1,4 @@
+import argparse
 import base64
 import glob
 import json
@@ -12,6 +13,8 @@ import types
 import denverapi.ctext
 
 from pios.core import *
+
+from . import core_utils
 
 
 def generate_empty_environment(name="__main__", doc=""):
@@ -94,6 +97,25 @@ def generate_default_directories_and_files():
 def read_file_str(file_name):
     with open(file_name) as file:
         return file.read()
+
+
+def repo_type(n: str):
+    n = n.split("#", 1)[0].split("://", 1)
+    if len(n) != 2:
+        raise ValueError(
+            "Value does not specifies a valid address {protocol}:{address}"
+        )
+    protocol = n[0]
+    path = n[1]
+    if protocol not in [
+        "bdtpfserv",
+    ]:
+        raise ValueError(f"Invalid protocol '{protocol}'")
+    for x in []:
+        if x in path:
+            raise ValueError(f"{x} is not allowed in the repository path")
+
+    return {"protocol": protocol, "path": path.strip().split("/")}
 
 
 def read_file_bytes(file_name):
@@ -186,8 +208,70 @@ def run_command(command, environment=None, pi_path=None):
             print(" ".join(command[1:]))
         elif command[0] == "pecho":
             print(*command[1].split(";"), sep="\n")
+        elif command[0] == "ls":
+            if len(command) == 1:
+                command.append(os.getcwd())
+            for x in os.listdir(command[1]):
+                path = os.path.join(command[1], x)
+                if os.path.isdir(path):
+                    print(x, fore="cyan")
+                else:
+                    print(x)
         elif command[0] == "dlp":
-            print("DLP is not complete")  # TODO Complete DLP
+            parser = argparse.ArgumentParser("dlp")
+            subparsers = parser.add_subparsers(
+                title="Commands", metavar="", dest="command"
+            )
+
+            install = subparsers.add_parser("install", help="Install a package")
+            install.add_argument(
+                "-f",
+                "--force-install",
+                help="Install a package regardless of it being installed " "or not",
+                action="store_true",
+            )
+            install.add_argument(
+                "-r", "--reinstall", help="Reinstall a package", action="store_true"
+            )
+            install.add_argument(
+                "-i",
+                "--install-recommend",
+                help="Install all the recommended packages provided by "
+                "the package you want to install",
+                action="store_true",
+            )
+            install.add_argument(
+                "-r",
+                "--repository",
+                help="Repository to search in",
+                default=[],
+                type=repo_type,
+                action="append",
+            )
+            install.add_argument(
+                "-n",
+                "--no-defaults",
+                help="Do not include default repository index in search",
+                action="store_true",
+            )
+            install.add_argument(
+                "-d",
+                "--download",
+                help="Download to a specific directory and do not install",
+            )
+            install.add_argument("package", help="package to download and install")
+
+            uninstall = subparsers.add_parser("uninstall", help="Uninstall packages")
+            uninstall.add_argument("package", help="Package to uninstall")
+
+            args = parser.parse_args(command[1:])
+
+            if args.command == "install":
+                pass
+        elif command[0] == "help-core-utils":
+            for x in [x for x in dir(core_utils) if not x.startswith("_")]:
+                print(x)
+
         elif command[0] == "help":
             print(
                 """
@@ -199,18 +283,24 @@ def run_command(command, environment=None, pi_path=None):
         delenv name                      Delete an environment variable
         echo value                       Print a value
         pecho value                      Print a value split at ';'
-        dlp url                          Download a package and install"""
+        dlp [options ...]                Download a package and install
+        ls directory                     List a directory
+        help-core-utils                  Print a clean list of all core utilities
+        """
             )
         else:
-            d = search_in_paths(command[0], py_modules)
-            if not d:
-                print(f"No such command '{command[0]}'", fore="yellow")
-            elif not os.path.isfile(d):
-                print(f"'{command[0]} is not a file'")
+            if command[0] in dir(core_utils):
+                getattr(core_utils, command[0]).main(command)
             else:
-                result = subprocess.run([sys.executable, d, *command[1:]])
-                if result.returncode != 0:
-                    return 1
+                d = search_in_paths(command[0], py_modules)
+                if not d:
+                    print(f"No such command '{command[0]}'", fore="yellow")
+                elif not os.path.isfile(d):
+                    print(f"'{command[0]} is not a file'")
+                else:
+                    result = subprocess.run([sys.executable, d, *command[1:]])
+                    if result.returncode != 0:
+                        return 1
     except Exception:
         error_msg = traceback.format_exc()
         print(error_msg)

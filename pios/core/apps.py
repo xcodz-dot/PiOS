@@ -1,3 +1,4 @@
+import importlib
 import json
 import os
 import secrets
@@ -10,6 +11,13 @@ from denverapi.ctext import input, print
 
 from .sysinterface import *
 from .terminal import root
+
+
+def clear():
+    if os.name == "nt":
+        os.system("cls")
+    else:
+        os.system("clear")
 
 
 def generate_empty_environment(name="__main__", doc=""):
@@ -214,6 +222,21 @@ def run_app(name: str):
     else:
         exit_interface.setdefault("EXIT_CODE", 1 if errored else 0)
     return exit_interface
+
+
+def load_builtin_apps():
+    internal_apps = importlib.import_module("pios.core.internal_apps")
+    return {
+        x: getattr(internal_apps, x)
+        for x in dir(internal_apps)
+        if not x.startswith("_")
+    }
+
+
+def run_builtin_app(app_name: str):
+    clear()
+    load_builtin_apps()[app_name].main()
+    clear()
 
 
 def list_apps():

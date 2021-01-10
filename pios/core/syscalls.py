@@ -72,6 +72,7 @@ def write_file(file, data):
 
 def start_ui(ui_type):
     if ui_type == "auto-ui":
+        loaded_apps = apps.load_builtin_apps()
         global ui
         ui = {
             "Power": {"Shut Down": "raise PiosShutdown", "Reboot": "raise PiosReboot"},
@@ -83,6 +84,9 @@ def start_ui(ui_type):
                         k: f"uninstall_app({repr(k)})" for k in apps.list_apps().keys()
                     },
                 }
+            },
+            "Builtin Apps": {
+                k: f"apps.run_builtin_app({repr(k)})" for k in loaded_apps.keys()
             },
             "Apps": {k: f"run_app({repr(k)})" for k in apps.list_apps().keys()},
         }
