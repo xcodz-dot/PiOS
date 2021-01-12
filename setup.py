@@ -16,7 +16,7 @@ requirements = [
 
 setuptools.setup(
     name="PiOS",
-    version="0.9.0",
+    version="0.10.0",
     packages=setuptools.find_packages()
     + setuptools.find_namespace_packages(include=["pios.*", "pios"]),
     package_data=pysetup.find_package_data("pios", "pios"),
