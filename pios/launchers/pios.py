@@ -15,7 +15,7 @@ try:
     os.chdir(os.path.expanduser(f"~/.pios/os_instance/{Args.operating_system}"))
 except OSError:
     copytree(
-        os.path.abspath(f"{__file__}/../os_recreation_data/{Args.operating_system}"),
+        os.path.abspath(f"{__file__}/../../os_recreation_data/{Args.operating_system}"),
         os.path.expanduser(f"~/.pios/os_instance/{Args.operating_system}"),
     )
     os.chdir(os.path.expanduser(f"~/.pios/os_instance/{Args.operating_system}"))
