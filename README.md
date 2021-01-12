@@ -29,3 +29,7 @@ python -m pios
 ```
 
 this will start the default PiOS available.
+
+## Known Bugs
+
+* \[0] it does not work on linux and OSX due to some path errors with `os.altsep`.
