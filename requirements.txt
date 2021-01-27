@@ -1,5 +1,5 @@
 denver-api>=2.6.0b3
-setuptools~=52.0.0
+setuptools>=52.0.0
 requests
 packaging
 rich
