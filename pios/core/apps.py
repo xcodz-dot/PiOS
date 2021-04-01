@@ -7,7 +7,7 @@ import traceback
 import types
 from time import sleep
 
-from denverapi.ctext import input, print
+from denverapi.colored_text import input, print
 
 from .sysinterface import *
 from .terminal import root

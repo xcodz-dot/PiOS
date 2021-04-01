@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: PiOS
-Version: 0.7.0
+Version: 0.9.0
 Summary: PiOS, A full featured python written OS
 Home-page: https://github.com/xcodz-dot/PiOS
 Author: xcodz
@@ -13,6 +13,30 @@ Description: # PiOS
 
         For documentation you will have to wait, currently this project is in alpha stage (basic things are yet to implement)
 
+        ## Installation
+
+        To install OS
+        ```bash
+        pip install PiOS -U
+        ```
+
+        after installation you can run a quick check for upgrade by using this command (*Note: this requires internet*)
+
+        ```bash
+        python -m pios -c
+        ```
+
+        If the above shows a stable release then upgrade it via the command given. Or else if you are one of those
+        who wants to try out the developer release you can upgrade via the commands given.
+
+        ## Running
+
+        To run a PiOS instance you can simply invoke this command
+        ```bash
+        python -m pios
+        ```
+
+        this will start the default PiOS available.
 Keywords: PiOS,python,os,github,pyos,operating,system
 Platform: UNKNOWN
 Requires-Python: >=3.8

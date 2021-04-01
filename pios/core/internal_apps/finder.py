@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from denverapi.ctext import input, print
+from denverapi.colored_text import input, print
 
 from ..terminal import root
 

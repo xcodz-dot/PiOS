@@ -9,7 +9,7 @@ __version__ = "1.0.0"
 import math
 import operator
 
-from denverapi.ctext import input, print
+from denverapi.colored_text import input, print
 from pyparsing import (
     CaselessLiteral,
     Combine,

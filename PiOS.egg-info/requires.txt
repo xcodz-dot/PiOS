@@ -1,7 +1,10 @@
-denver-api
-setuptools~=50.3.0
+denver-api>=2.6.0b3
+setuptools~=51.1.0
 requests
 packaging
+rich
+Pyparsing
+html2text
 
 [SDK]
 PiOS-SDK

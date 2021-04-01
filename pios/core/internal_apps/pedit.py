@@ -11,7 +11,7 @@ __version__ = "1.0.0"
 import os
 from time import sleep
 
-from denverapi.ctext import input, print
+from denverapi.colored_text import input, print
 
 
 def clear():
@@ -68,10 +68,11 @@ save, done, open are special commands"
         elif i == "open":
             try:
                 i = input("PATH>")
-                d = open(i).read().split("\n")
+                with open(i) as file:
+                    d = file.read().split("\n")
                 sp = i
-            except:
-                pass
+            except Exception as e:
+                print(f"{e.__class__.__name__}: {str(e)}")
         elif len(i) != 0:
             if i[0:2] == "i:":
                 i = i.split(":", 2)

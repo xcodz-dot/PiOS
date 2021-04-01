@@ -1,9 +1,11 @@
-import socket
+from io import StringIO
+from threading import Thread
+from typing import Tuple
 
 from pios.core.syscalls import *
 
 
-def redirect_io_to_socket(s: socket.socket):
+def redirect_io(server: Tuple[str, int], authentication: str):
     file = s.makefile("w", buffering=None)
     sys.stdout = file
     sys.stderr = file

@@ -1,11 +1,11 @@
 import sys
 
-import denverapi.ctext
+import denverapi.colored_text as ctext
 
-es = denverapi.ctext.ColoredText.escape
+es = ctext.escape
 
-print = denverapi.ctext.print
-input = denverapi.ctext.input
+print = ctext.print
+input = ctext.input
 
 original_stdout = sys.stdout
 original_stderr = sys.stderr

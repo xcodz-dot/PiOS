@@ -10,7 +10,7 @@ import subprocess
 import traceback
 import types
 
-import denverapi.ctext
+import denverapi.colored_text as ctext
 
 from pios.core import *
 
@@ -292,7 +292,9 @@ def run_command(command, environment=None, pi_path=None):
             if command[0] in dir(core_utils):
                 getattr(core_utils, command[0]).main(command)
             else:
-                d = search_in_paths(command[0], py_modules)
+                d = search_in_paths(
+                    command[0], py_modules + discover_modules(os.getcwd())
+                )
                 if not d:
                     print(f"No such command '{command[0]}'", fore="yellow")
                 elif not os.path.isfile(d):
@@ -314,13 +316,9 @@ def interactive_terminal_session():
 
     clear()
     # noinspection PyCallByClass
-    print(denverapi.ctext.ColoredText.escape("Copyright (c) 2020 xcodz."))
+    print(ctext.escape("Copyright (c) 2020 xcodz."))
     # noinspection PyCallByClass
-    print(
-        denverapi.ctext.ColoredText.escape(
-            f"{{fore_blue}}PiTerminal {{fore_green}}[{terminal_version}]"
-        )
-    )
+    print(ctext.escape(f"{{fore_blue}}PiTerminal {{fore_green}}[{terminal_version}]"))
     terminal_running = True
     while terminal_running:
         user_command = input(es(os.getcwd().replace(os.sep, "/") + "{fore_magenta}$ "))
