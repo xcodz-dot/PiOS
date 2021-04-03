@@ -6,7 +6,7 @@ f = open(os.path.expanduser("~/.pios/root.json"), "w")
 f.write(
     f"""
 {{
-    "root": "{os.getcwd().replace(os.sep, os.altsep)}"
+    "root": "{os.getcwd().replace(os.sep, "/")}"
 }}"""
 )
 f.close()

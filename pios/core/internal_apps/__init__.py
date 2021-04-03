@@ -1,1 +1,1 @@
-from . import browser, calculator, finder, pedit
+from . import AppStore, browser, calculator, finder, pedit

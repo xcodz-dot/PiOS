@@ -3,8 +3,14 @@
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/PiOS.egg-info" />
+      <excludeFolder url="file://$MODULE_DIR$/venv" />
+      <excludeFolder url="file://$MODULE_DIR$/env" />
+      <excludeFolder url="file://$MODULE_DIR$/docs/docs/developer/.ipynb_checkpoints" />
+      <excludeFolder url="file://$MODULE_DIR$/docs/docs/.ipynb_checkpoints" />
+      <excludeFolder url="file://$MODULE_DIR$/docs/.ipynb_checkpoints" />
+      <excludeFolder url="file://$MODULE_DIR$/.ipynb_checkpoints" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.9 (2)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.8 (PiOS)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="PiOS-SDK" />
     <orderEntry type="module" module-name="pios-apps" />

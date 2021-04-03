@@ -1,7 +1,9 @@
-denver-api>=2.6.0b3
+denver-api>=3.0.0b0
 setuptools>=52.0.0
 requests
 packaging
 rich
 Pyparsing
 html2text
+toml
+wget

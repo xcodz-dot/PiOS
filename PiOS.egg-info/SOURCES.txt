@@ -18,6 +18,7 @@ pios/core/terminal.py
 pios/core/core_utils/__init__.py
 pios/core/core_utils/cat.py
 pios/core/core_utils/man.py
+pios/core/core_utils/doc/cat.md
 pios/core/core_utils/doc/help.md
 pios/core/internal_apps/__init__.py
 pios/core/internal_apps/browser.py

@@ -189,7 +189,7 @@ def run_command(command, environment=None, pi_path=None):
         environment = load_environment_variables()
     if pi_path is None:
         pi_path = environment["PATH"].split(";")
-    py_modules = [x.replace(os.sep, os.altsep) for x in discover_modules(pi_path)]
+    py_modules = [x.replace(os.sep, "/") for x in discover_modules(pi_path)]
     command = parse_command(command, environment)
     # noinspection PyBroadException
     try:

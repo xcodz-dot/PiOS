@@ -99,7 +99,7 @@ def install_app(file_name, interactive=False):
     except Exception as e:
         raise InstallerScriptError(f"{e.__class__.__name__}: {str(e)}")
     try:
-        shutil.rmtree(f"{root}/temp")
+        shutil.rmtree(f"{root}/.temp")
         os.remove(f"{root}/.app.zip")
     except:
         pass

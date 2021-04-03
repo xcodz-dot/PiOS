@@ -1,15 +1,17 @@
 import setuptools
-from denverapi import pysetup
+from denverapi import setup_utils as pysetup
 
 with open("README.md") as file:
     long_description = file.read()
 
 requirements = [
-    "denver-api>=2.6.0b3",
-    "setuptools~=51.1.0",
+    "denver-api>=3.0.0b0",
+    "setuptools>=51",
     "requests",
     "packaging",
     "rich",
+    "toml",
+    "wget",
     "Pyparsing",
     "html2text",
 ]
