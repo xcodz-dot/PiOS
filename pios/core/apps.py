@@ -106,9 +106,12 @@ def install_app(file_name, interactive=False):
     return installer_rval
 
 
-def install_interface():
+def install_interface(ppk=None):
     print("PiOS Install")
-    archive_path = input("PiOS Package Kit (*.ppk): ", fore="magenta")
+    if ppk is None:
+        archive_path = input("PiOS Package Kit (*.ppk): ", fore="magenta")
+    else:
+        archive_path = ppk
     print(f"Installing {os.path.basename(archive_path)}")
     print(f"Installing Archive - Verifying Archive")
     if not os.path.isfile(archive_path):
