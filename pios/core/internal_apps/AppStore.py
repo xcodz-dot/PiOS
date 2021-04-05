@@ -1,4 +1,5 @@
 import datetime
+import json
 import os
 import re
 import string
@@ -10,10 +11,14 @@ import toml
 import wget
 from denverapi.colored_text import input, print
 from denverapi.keyboard import getch
+from packaging.version import Version
 
-from pios.core.apps import install_interface
+from pios.core.apps import install_interface, uninstall
+from pios.core.syscalls import uninstall_app
+from pios.core.terminal import root
 
 appstore_list = {}
+id_info = {}
 scene = ""
 sha256_hashes = []
 appstore_names = list(appstore_list.keys())
@@ -62,17 +67,32 @@ def print_list():
             if opt in range(len(ls)):
                 sel = appstore_list[ls[opt]]
                 while True:
+                    updatable = False
+                    is_installed = False
+                    if sel["identification_id"] in id_info:
+                        if Version(sel["version"]) > Version(
+                            id_info[sel["identification_id"]]["version"]
+                        ):
+                            updatable = True
+                        is_installed = True
                     clear()
                     print("App Store\n")
                     print(f"{sel['name']} - {sel['version']}")
                     print(f"\n{sel['description']}\n")
-                    print(f" [I] Install [B] Back", fore="green")
+                    if not updatable and not is_installed:
+                        print(f" [I] Install [B] Back", fore="green")
+                    elif updatable:
+                        print(f" [I] Update [U] Uninstall [B] Back", fore="green")
+                    else:
+                        print(f" [U] Uninstall [B] Back", fore="green")
                     opt = getch().lower()
-                    if opt == b"i":
+                    if opt == b"i" and (not is_installed or updatable):
                         while True:
                             clear()
                             print("App Store\n")
-                            print(f"Do you want to really install '{sel['name']}'?")
+                            print(
+                                f"Do you want to really {'install' if not updatable else 'update'} '{sel['name']}'?"
+                            )
                             print(
                                 f" [Y] Yes, with security [N] No      [S] Yes, without security",
                                 fore="green",
@@ -82,11 +102,19 @@ def print_list():
                             if opt == b"n":
                                 break
                             elif opt == b"y":
+                                if updatable:
+                                    uninstall(sel["name"], True, True)
                                 install_app_from_store(sel, True)
                                 break
                             elif opt == b"s":
+                                if updatable:
+                                    uninstall(sel["name"], True, True)
                                 install_app_from_store(sel, False)
                                 break
+                    elif opt == b"u" and is_installed:
+                        clear()
+                        uninstall_app(sel["name"])
+                        load_apps()
                     elif opt == b"b":
                         break
 
@@ -124,17 +152,32 @@ def search():
             if opt in range(len(ls)):
                 sel = appstore_list[ls[opt]]
                 while True:
+                    updatable = False
+                    is_installed = False
+                    if sel["identification_id"] in id_info:
+                        if Version(sel["version"]) > Version(
+                            id_info[sel["identification_id"]]["version"]
+                        ):
+                            updatable = True
+                        is_installed = True
                     clear()
                     print("App Store\n")
                     print(f"{sel['name']} - {sel['version']}")
                     print(f"\n{sel['description']}\n")
-                    print(f" [I] Install [B] Back", fore="green")
+                    if not updatable and not is_installed:
+                        print(f" [I] Install [B] Back", fore="green")
+                    elif updatable:
+                        print(f" [I] Update [U] Uninstall [B] Back", fore="green")
+                    else:
+                        print(f" [U] Uninstall [B] Back", fore="green")
                     opt = getch().lower()
-                    if opt == b"i":
+                    if opt == b"i" and (not is_installed or updatable):
                         while True:
                             clear()
                             print("App Store\n")
-                            print(f"Do you want to really install '{sel['name']}'?")
+                            print(
+                                f"Do you want to really {'install' if not updatable else 'update'} '{sel['name']}'?"
+                            )
                             print(
                                 f" [Y] Yes, with security [N] No      [S] Yes, without security",
                                 fore="green",
@@ -144,13 +187,37 @@ def search():
                             if opt == b"n":
                                 break
                             elif opt == b"y":
+                                if updatable:
+                                    uninstall(sel["name"], True, True)
                                 install_app_from_store(sel, True)
                                 break
                             elif opt == b"s":
+                                if updatable:
+                                    uninstall(sel["name"], True, True)
                                 install_app_from_store(sel, False)
                                 break
+                    elif opt == b"u" and is_installed:
+                        clear()
+                        uninstall_app(sel["name"])
+                        load_apps()
                     elif opt == b"b":
                         break
+
+
+def load_apps():
+    global id_info
+    programs = f"{root}/user/programs"
+    for x in os.listdir(programs):
+        if not os.path.isdir(f"{programs}/{x}"):
+            continue
+        if "appstore_id.txt" in os.listdir(f"{programs}/{x}"):
+            d = {}
+            with open(f"{programs}/{x}/appstore_id.txt") as file:
+                app_id = int(file.read())
+            with open(f"{programs}/{x}/app.json") as file:
+                data = json.load(file)
+                d["version"] = data["version"]
+            id_info[app_id] = d
 
 
 def advanced_search(query, string2):
@@ -194,6 +261,7 @@ def install_app_from_store(app: dict, secure: bool = True):
         return
     try:
         wget.download(dl, ".temp.ppk")
+        print()
     except Exception:
         print(f"Download Failed, Internet Unstable or Invalid URL: " + dl)
         if os.path.isfile(".temp.ppk"):
@@ -209,7 +277,8 @@ def install_app_from_store(app: dict, secure: bool = True):
             if inp != "y":
                 return
         file.close()
-    install_interface(".temp.ppk")
+    install_interface(".temp.ppk", appstore_id=app["identification_id"])
+    load_apps()
 
 
 def generate_sha256(file):
@@ -227,6 +296,8 @@ def main():
     global appstore_names
     global scene
     global sha256_hashes
+
+    load_apps()
 
     require_refresh = True
     print("Loading Catalog")

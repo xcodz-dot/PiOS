@@ -54,7 +54,7 @@ sys.path.insert(0, {repr(path)})
         )
 
 
-def install_app(file_name, interactive=False):
+def install_app(file_name, interactive=False, appstore_id=None):
     try:
         shutil.copyfile(file_name, f"{root}/.app.zip")
     except FileNotFoundError:
@@ -103,10 +103,15 @@ def install_app(file_name, interactive=False):
         os.remove(f"{root}/.app.zip")
     except:
         pass
+
+    if appstore_id is not None:
+        with open(f"{app_root}/appstore_id.txt", "w") as file:
+            file.write(str(appstore_id))
+
     return installer_rval
 
 
-def install_interface(ppk=None):
+def install_interface(ppk=None, appstore_id=None):
     print("PiOS Install")
     if ppk is None:
         archive_path = input("PiOS Package Kit (*.ppk): ", fore="magenta")
@@ -122,7 +127,7 @@ def install_interface(ppk=None):
     installed = False
     try:
         ex = False
-        installed = install_app(archive_path, True)
+        installed = install_app(archive_path, True, appstore_id)
     except Exception as e:
         print("Installing Archive - Error", fore="red")
         ex = True
